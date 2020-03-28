@@ -6,3 +6,9 @@ I didn't bother to comment the code, and if you're interested in knowing more, I
 
 It's well-written, and even if you don't know Go, pretty accessible. Having laid my hands on a few compiler books and tutorials, I can only say it's the best introductory material I've come across, by far.
 
+## Status
+
+What I've implemented so far:
+
+* [x] Chapter 1 - Lexing
+
