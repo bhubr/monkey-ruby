@@ -1,4 +1,6 @@
 class Token
+attr_accessor :type, :literal
+
   ILLEGAL = "ILLEGAL"
   EOF = "EOF"
 

@@ -14,10 +14,23 @@ class LexerTest < Test::Unit::TestCase
       Token.new(Token::LBRACE, "{"),
       Token.new(Token::RBRACE, "}"),
       Token.new(Token::COMMA, ","),
-      Token.new(Token::SEMICOLON, ","),
+      Token.new(Token::SEMICOLON, ";"),
       Token.new(Token::EOF, "")
     ]
 
     l = Lexer.new(input)
+
+    tests.each_with_index do |tt, index|
+      tok = l.next_token
+
+      if tok.type != tt.type
+        raise "tests[#{index}] - tokentype wrong. expected=#{tt.type}, got=#{tok.type}"
+      end
+
+      if tok.literal != tt.literal
+        raise "tests[#{index}] - literal wrong. expected=#{tt.literal}, got=#{tok.literal}"
+      end
+
+    end
   end
 end
