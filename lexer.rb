@@ -4,7 +4,7 @@ def is_letter(ch)
   ch =~ /[_a-zA-Z]/
 end
 
-def is_number(ch)
+def is_digit(ch)
   ch =~ /\d/
 end
 
@@ -26,6 +26,14 @@ class Lexer
     @read_position += 1
   end
 
+  def peek_char
+    if @read_position >= @input.length
+      "\x00"
+    else
+      @input[@read_position]
+    end
+  end
+
   def read_identifier
     pos = @position
     while is_letter(@ch)
@@ -36,7 +44,7 @@ class Lexer
 
   def read_integer
     pos = @position
-    while is_number(@ch)
+    while is_digit(@ch)
       read_char
     end
     @input[pos..@position - 1]
@@ -53,9 +61,33 @@ class Lexer
     skip_whitespace
     case @ch
       when "="
-        tok = Token.new(Token::ASSIGN, "=")
+	next_char = peek_char
+	if next_char == "="
+	  read_char
+	  tok = Token.new(Token::EQ, "==")
+	else
+	  tok = Token.new(Token::ASSIGN, "=")
+	end
+      when "!"
+        next_char = peek_char
+        if next_char == "="
+          read_char
+          tok = Token.new(Token::NOT_EQ, "!=")
+	else
+	  tok = Token.new(Token::BANG, "!")
+	end
       when "+"
         tok = Token.new(Token::PLUS, "+")
+      when "-"
+        tok = Token.new(Token::MINUS, "-")
+      when "*"
+        tok = Token.new(Token::ASTERISK, "*")
+      when "/"
+        tok = Token.new(Token::SLASH, "/")
+      when "<"
+        tok = Token.new(Token::LT, "<")
+      when ">"
+        tok = Token.new(Token::GT, ">")
       when ";"
         tok = Token.new(Token::SEMICOLON, ";")
       when ","
@@ -75,7 +107,7 @@ class Lexer
 	  literal = read_identifier
 	  tok = Token.new(Token.get_type(literal), literal)
           return tok
-	elsif is_number(@ch)
+	elsif is_digit(@ch)
 	  tok = Token.new(Token::INT, read_integer)
 	  return tok
 	else

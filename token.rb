@@ -9,6 +9,16 @@ attr_accessor :type, :literal
 
   ASSIGN = "="
   PLUS = "+"
+  MINUS = "-"
+  ASTERISK = "*"
+  SLASH = "/"
+  BANG = "!"
+
+  LT = "<"
+  GT = ">"
+
+  EQ = "=="
+  NOT_EQ = "!="
 
   COMMA = ","
   SEMICOLON = ";"
@@ -20,10 +30,20 @@ attr_accessor :type, :literal
 
   FUNCTION = "FUNCTION"
   LET = "LET"
+  IF = "IF"
+  ELSE = "ELSE"
+  RETURN = "RETURN"
+  TRUE = "TRUE"
+  FALSE = "FALSE"
 
   KeywordsMap = {
     "let" => LET,
-    "fn" => FUNCTION
+    "fn" => FUNCTION,
+    "if" => IF,
+    "else" => ELSE,
+    "return" => RETURN,
+    "true" => TRUE,
+    "false" => FALSE
   }
 
   def initialize(type, literal)
