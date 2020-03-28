@@ -23,13 +23,8 @@ class LexerTest < Test::Unit::TestCase
     tests.each_with_index do |tt, index|
       tok = l.next_token
 
-      if tok.type != tt.type
-        raise "tests[#{index}] - tokentype wrong. expected=#{tt.type}, got=#{tok.type}"
-      end
-
-      if tok.literal != tt.literal
-        raise "tests[#{index}] - literal wrong. expected=#{tt.literal}, got=#{tok.literal}"
-      end
+      assert_equal tt.type, tok.type, "tests[#{index}] - tokentype wrong. expected=#{tt.type}, got=#{tok.type}"
+      assert_equal tt.literal, tok.literal, "tests[#{index}] - literal wrong. expected=#{tt.literal}, got=#{tok.literal}"
 
     end
   end
