@@ -61,10 +61,23 @@ class Parser
     return stmt
   end
 
+  def parse_return_statement
+    stmt = ReturnStatement.new(@cur_token)
+    next_token
+
+    while !cur_token_is(Token::SEMICOLON)
+      next_token
+    end
+
+    return stmt
+  end
+
   def parse_statement
     case @cur_token.type
       when Token::LET
         return parse_let_statement
+      when Token::RETURN
+        return parse_return_statement
       else
         return nil
     end
@@ -76,7 +89,7 @@ class Parser
     while !cur_token_is(Token::EOF)
       # puts "TOKEN #{@cur_token.type} #{@cur_token.literal}"
       stmt = parse_statement
-      # p stmt
+      p stmt
       if stmt != nil
         program.statements.push(stmt)
       end

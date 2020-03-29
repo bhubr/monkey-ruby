@@ -19,6 +19,7 @@ class Node
   end
 
   def token_literal
+    return @token.literal
   end
 end
 
@@ -34,13 +35,13 @@ end
 
 class LetStatement < Statement
   attr_accessor :name
+
   def statement_node
-
   end
+end
 
-  def token_literal
-    return @token.literal
-  end
+class ReturnStatement < Statement
+  attr_accessor :return_value
 end
 
 class Identifier < Expression

@@ -50,4 +50,28 @@ class ParserTest < Test::Unit::TestCase
       t_let_statement(stmt, tt)
     end
   end
+
+  def test_return_statements  
+    input = <<-END
+      return 5;
+      return 10;
+      return 993322;
+    END
+
+    l = Lexer.new(input)
+    p = Parser.new(l)
+
+    program = p.parse_program
+    check_parser_errors(p)
+
+    assert_not_equal program, nil, "parse_program returned nil"
+    assert_equal program.statements.length, 3, "program.statements does not contain 3 statements"
+
+    program.statements.each do |stmt|
+      stmt_class = stmt.class.name
+      assert_equal stmt.class.name, "ReturnStatement", "stmt not ReturnStatement, got #{stmt_class}"
+      assert_equal stmt.token_literal, "return", "return_stmt.token_literal not 'return', got #{stmt.token_literal}"
+    end
+  end
+
 end
