@@ -14,6 +14,17 @@ class ParserTest < Test::Unit::TestCase
     assert_equal let_stmt_literal, name, "let_stmt.name.token_literal not '#{name}', got #{let_stmt_literal}"
   end
 
+  def check_parser_errors(p)
+    errors = p.errors
+    if (errors.length == 0)
+      return
+    end
+    errors.each do |err|
+      puts "parser error: #{err}"
+    end
+    assert_equal errors.length, 0, "parser had #{errors.length} error(s)"
+  end
+
   def test_let_statements  
     input = <<-END
       let x = 5;
@@ -25,8 +36,9 @@ class ParserTest < Test::Unit::TestCase
     p = Parser.new(l)
 
     program = p.parse_program
-    assert_not_equal program, nil, "parse_program returned nil"
+    check_parser_errors(p)
 
+    assert_not_equal program, nil, "parse_program returned nil"
     assert_equal program.statements.length, 3, "program.statements does not contain 3 statements"
 
     tests = [

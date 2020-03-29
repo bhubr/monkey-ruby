@@ -3,10 +3,11 @@ require_relative './lexer'
 require_relative './token'
 
 class Parser
-  attr_accessor :cur_token
+  attr_accessor :cur_token, :errors
   def initialize(lexer)
     @l = lexer
     @peek_token = nil
+    @errors = []
     next_token
     next_token
   end
@@ -14,9 +15,9 @@ class Parser
   def next_token
     @cur_token = @peek_token
     @peek_token = @l.next_token
-    if @cur_token != nil
-      puts "#{@cur_token.type} #{@cur_token.literal} / #{@peek_token.type} #{@peek_token.literal}"
-    end
+    # if @cur_token != nil
+    #   puts "#{@cur_token.type} #{@cur_token.literal} / #{@peek_token.type} #{@peek_token.literal}"
+    # end
   end
 
   def cur_token_is(token_type)
@@ -32,8 +33,14 @@ class Parser
       next_token
       return true
     else
+      peek_error(token_type)
       return false
     end
+  end
+
+  def peek_error(token_type)
+    msg = "expected next token to be #{token_type}, got #{@peek_token.type}"
+    @errors.push(msg)
   end
 
   def parse_let_statement
@@ -65,11 +72,11 @@ class Parser
 
   def parse_program
     program = Program.new
-    puts @cur_token.type
-    while @cur_token.type != Token::EOF
-      puts "TOKEN #{@cur_token.type} #{@cur_token.literal}"
+    # puts @cur_token.type
+    while !cur_token_is(Token::EOF)
+      # puts "TOKEN #{@cur_token.type} #{@cur_token.literal}"
       stmt = parse_statement
-      p stmt
+      # p stmt
       if stmt != nil
         program.statements.push(stmt)
       end
