@@ -4,12 +4,31 @@ require_relative './token'
 
 class Parser
   attr_accessor :cur_token, :errors
+  LOWEST = 10
+  EQUALS = 20
+  LESSGREATER = 30
+  SUM = 40
+  PRODUCT = 50
+  PREFIX = 60
+  CALL = 70
+
   def initialize(lexer)
     @l = lexer
     @peek_token = nil
     @errors = []
+    @prefix_parse_fns = {}
+    @infix_parse_fns = {}
+    register_prefix_fn(Token::IDENT, method(:parse_identifier))
     next_token
     next_token
+  end
+
+  def register_prefix_fn(token_type, parse_fn)
+    @prefix_parse_fns[token_type] = parse_fn
+  end
+
+  def register_infix_fn(token_type, parse_fn)
+    @infix_parse_fns[token_type] = parse_fn
   end
 
   def next_token
@@ -72,6 +91,30 @@ class Parser
     return stmt
   end
 
+  def parse_identifier
+    Identifier.new(@cur_token, @cur_token.literal)
+  end
+
+  def parse_expression(precedence)
+    prefix = @prefix_parse_fns[@cur_token.type]
+    if prefix == nil
+      return nil
+    end
+    p prefix
+    prefix.call
+  end
+
+  def parse_expression_statement
+    stmt = ExpressionStatement.new(@cur_token)
+    stmt.expression = parse_expression(LOWEST)
+
+    if peek_token_is(Token::SEMICOLON)
+      next_token
+    end
+
+    return stmt
+  end
+
   def parse_statement
     case @cur_token.type
       when Token::LET
@@ -79,7 +122,7 @@ class Parser
       when Token::RETURN
         return parse_return_statement
       else
-        return nil
+        return parse_expression_statement
     end
   end
 

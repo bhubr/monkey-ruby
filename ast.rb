@@ -71,6 +71,7 @@ class ReturnStatement < Statement
 end
 
 class ExpressionStatement < Statement
+  attr_accessor :expression
   def string
     if @expression
       @expression.string

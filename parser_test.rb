@@ -74,4 +74,18 @@ class ParserTest < Test::Unit::TestCase
     end
   end
 
+  def test_identifier_expression
+    input = "foobar;"
+    l = Lexer.new(input)
+    p = Parser.new(l)
+    program = p.parse_program
+    check_parser_errors(p)
+    stmts_len = program.statements.length
+    assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
+    stmt = program.statements[0]
+    ident = stmt.expression
+    assert_equal ident.value, "foobar", "ident.value not 'foobar'. got=#{ident.value}"
+    assert_equal ident.token_literal, "foobar", "ident.token_literal not 'foobar'. got #{ident.token_literal}"
+  end
+
 end
