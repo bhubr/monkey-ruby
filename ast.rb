@@ -11,6 +11,14 @@ class Program
       return ""
     end
   end
+
+  def string
+    out = ""
+    @statements.each do |stmt|
+      out += stmt.string
+    end
+    out
+  end
 end
 
 class Node
@@ -34,14 +42,40 @@ class Expression < Node
 end
 
 class LetStatement < Statement
-  attr_accessor :name
+  attr_accessor :name, :value
 
   def statement_node
+  end
+
+  def string
+    out = "#{token_literal} #{@name.string} = "
+    if @value
+      out += @value.string
+    end
+    out += ";"
+    out
   end
 end
 
 class ReturnStatement < Statement
   attr_accessor :return_value
+
+  def string
+    out = "#{token_literal} "
+    if @return_value
+      out += @return_value.string
+    end
+    out += ";"
+    out
+  end
+end
+
+class ExpressionStatement < Statement
+  def string
+    if @expression
+      @expression.string
+    end
+  end
 end
 
 class Identifier < Expression
@@ -57,6 +91,10 @@ class Identifier < Expression
 
   def token_literal
     return @token.literal
+  end
+
+  def string
+    @value
   end
 end
 
