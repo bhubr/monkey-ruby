@@ -14,6 +14,11 @@ class ParserTest < Test::Unit::TestCase
     assert_equal let_stmt_literal, name, "let_stmt.name.token_literal not '#{name}', got #{let_stmt_literal}"
   end
 
+  def t_integer_literal(il, value)
+    assert_equal il.value, value, "il.value not #{value}, got #{il.value}"
+    assert_equal il.token_literal, "#{value}", "il.token_literal not '#{value}', got '#{il.token_literal}'"
+  end
+
   def check_parser_errors(p)
     errors = p.errors
     if (errors.length == 0)
@@ -102,4 +107,34 @@ class ParserTest < Test::Unit::TestCase
     assert_equal int.token_literal, "55", "int.token_literal not '55'. got #{int.token_literal}"
   end
 
+  def test_parsing_prefix_expressions
+    prefix_tests = [
+      {
+        :input => "!5;",
+        :operator => "!",
+        :int_val => 5
+      },
+      {
+        :input => "-15;",
+        :operator => "-",
+        :int_val => 15
+      }
+    ]
+
+    prefix_tests.each do |tt|
+      l = Lexer.new(tt[:input])
+      p = Parser.new(l)
+      program = p.parse_program
+      check_parser_errors(p)
+
+      stmts_len = program.statements.length
+      assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
+      stmt = program.statements[0]
+      exp = stmt.expression
+      assert_equal exp.operator, tt[:operator], "exp.operator is not '#{tt[:operator]}', got #{exp.operator}"
+      if !t_integer_literal(exp.right, tt[:int_val])
+        return
+      end
+    end
+  end
 end

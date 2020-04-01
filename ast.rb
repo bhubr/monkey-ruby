@@ -98,3 +98,14 @@ end
 class IntegerLiteral < Expression
 
 end
+
+class PrefixExpression < Expression
+  attr_accessor :operator, :right
+  def initialize(token, operator)
+    @token = token
+    @operator = operator
+  end
+  def string
+    "(#{@operator}#{right.string})"
+  end
+end

@@ -20,6 +20,8 @@ class Parser
     @infix_parse_fns = {}
     register_prefix_fn(Token::IDENT, method(:parse_identifier))
     register_prefix_fn(Token::INT, method(:parse_integer_literal))
+    register_prefix_fn(Token::BANG, method(:parse_prefix_expression))
+    register_prefix_fn(Token::MINUS, method(:parse_prefix_expression))
     next_token
     next_token
   end
@@ -30,6 +32,10 @@ class Parser
 
   def register_infix_fn(token_type, parse_fn)
     @infix_parse_fns[token_type] = parse_fn
+  end
+
+  def no_prefix_parse_fn_error(token_type)
+    @errors.push("no prefix parse fn for #{token_type} found")
   end
 
   def next_token
@@ -102,9 +108,17 @@ class Parser
     lit
   end
 
+  def parse_prefix_expression
+    expression = PrefixExpression.new(@cur_token, @cur_token.literal)
+    next_token
+    expression.right = parse_expression(PREFIX)
+    expression
+  end
+
   def parse_expression(precedence)
     prefix_fn = @prefix_parse_fns[@cur_token.type]
     if prefix_fn == nil
+      no_prefix_parse_fn_error(@cur_token.type)
       return nil
     end
     prefix_fn.call
