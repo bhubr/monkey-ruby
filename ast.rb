@@ -37,7 +37,16 @@ class Statement < Node
 end
 
 class Expression < Node
+  attr_accessor :value
   def expression_node
+  end
+
+  def token_literal
+    return @token.literal
+  end
+
+  def string
+    @value
   end
 end
 
@@ -80,22 +89,12 @@ class ExpressionStatement < Statement
 end
 
 class Identifier < Expression
-  attr_accessor :value
   def initialize(token, value)
     @token = token
     @value = value
   end
-
-  def expression_node
-
-  end
-
-  def token_literal
-    return @token.literal
-  end
-
-  def string
-    @value
-  end
 end
 
+class IntegerLiteral < Expression
+
+end

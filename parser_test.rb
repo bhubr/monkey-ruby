@@ -88,4 +88,18 @@ class ParserTest < Test::Unit::TestCase
     assert_equal ident.token_literal, "foobar", "ident.token_literal not 'foobar'. got #{ident.token_literal}"
   end
 
+  def test_integer_expression
+    input = "55;"
+    l = Lexer.new(input)
+    p = Parser.new(l)
+    program = p.parse_program
+    check_parser_errors(p)
+    stmts_len = program.statements.length
+    assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
+    stmt = program.statements[0]
+    int = stmt.expression
+    assert_equal int.value, 55, "int.value not 55. got=#{int.value}"
+    assert_equal int.token_literal, "55", "int.token_literal not '55'. got #{int.token_literal}"
+  end
+
 end

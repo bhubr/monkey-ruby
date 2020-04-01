@@ -19,6 +19,7 @@ class Parser
     @prefix_parse_fns = {}
     @infix_parse_fns = {}
     register_prefix_fn(Token::IDENT, method(:parse_identifier))
+    register_prefix_fn(Token::INT, method(:parse_integer_literal))
     next_token
     next_token
   end
@@ -95,13 +96,18 @@ class Parser
     Identifier.new(@cur_token, @cur_token.literal)
   end
 
+  def parse_integer_literal
+    lit = IntegerLiteral.new(@cur_token)
+    lit.value = @cur_token.literal.to_i
+    lit
+  end
+
   def parse_expression(precedence)
-    prefix = @prefix_parse_fns[@cur_token.type]
-    if prefix == nil
+    prefix_fn = @prefix_parse_fns[@cur_token.type]
+    if prefix_fn == nil
       return nil
     end
-    p prefix
-    prefix.call
+    prefix_fn.call
   end
 
   def parse_expression_statement
@@ -132,7 +138,7 @@ class Parser
     while !cur_token_is(Token::EOF)
       # puts "TOKEN #{@cur_token.type} #{@cur_token.literal}"
       stmt = parse_statement
-      p stmt
+      # p stmt
       if stmt != nil
         program.statements.push(stmt)
       end
