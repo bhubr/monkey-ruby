@@ -103,6 +103,10 @@ class Boolean < Expression
     @token = token
     @value = value
   end
+
+  def string
+    @value.to_s
+  end
 end
 
 class PrefixExpression < Expression
