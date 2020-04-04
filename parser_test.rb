@@ -14,8 +14,34 @@ class ParserTest < Test::Unit::TestCase
   end
 
   def t_integer_literal(il, value)
+    assert_equal il.class.name, "IntegerLiteral", "stmt not IntegerLiteral, got #{il.class.name}"
     assert_equal il.value, value, "il.value not #{value}, got #{il.value}"
     assert_equal il.token_literal, "#{value}", "il.token_literal not '#{value}', got '#{il.token_literal}'"
+  end
+
+  def t_identifier(exp, expected_val)
+    assert_equal exp.class.name, "Identifier"
+    assert_equal exp.value, expected_val, "exp.value not '#{expected_val}'. got=#{exp.value}"
+    assert_equal exp.token_literal, expected_val, "exp.token_literal not '#{expected_val}'. got #{exp.token_literal}"
+  end
+
+  def t_literal_expression(exp, expected)
+    v = expected.class.name
+    case v
+      when "Integer"
+        return t_integer_literal(exp, expected)
+      when "String"
+        return t_identifier(exp, expected)
+      else
+        raise "Not handled: #{v}"
+    end
+  end
+
+  def t_infix_expression(exp, left, operator, right)
+    assert_equal exp.class.name, "InfixExpression", "exp not InfixExpression, got #{exp.class.name}"
+    t_literal_expression(exp.left, left)
+    assert_equal exp.operator, operator, "exp.operator is not '#{operator}', got '#{exp.operator}'"
+    t_literal_expression(exp.right, right)
   end
 
   def check_parser_errors(p)
@@ -88,8 +114,7 @@ class ParserTest < Test::Unit::TestCase
     assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
     stmt = program.statements[0]
     ident = stmt.expression
-    assert_equal ident.value, "foobar", "ident.value not 'foobar'. got=#{ident.value}"
-    assert_equal ident.token_literal, "foobar", "ident.token_literal not 'foobar'. got #{ident.token_literal}"
+    t_identifier(ident, "foobar")
   end
 
   def test_integer_expression
@@ -204,6 +229,7 @@ class ParserTest < Test::Unit::TestCase
       stmt_class = stmt.class.name
       assert_equal stmt_class, "ExpressionStatement", "stmt not ExpressionStatement, got #{stmt_class}"
       exp = stmt.expression
+      t_infix_expression(exp, tt[:left_value], tt[:operator], tt[:right_value])
       exp_class = exp.class.name
       assert_equal exp_class, "InfixExpression", "exp not InfixExpression, got #{exp_class}"
       if !t_integer_literal(exp.left, tt[:left_value])
