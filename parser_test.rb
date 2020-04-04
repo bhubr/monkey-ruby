@@ -173,13 +173,23 @@ class ParserTest < Test::Unit::TestCase
       {
         :input => "!5;",
         :operator => "!",
-        :int_val => 5
+        :value => 5
       },
       {
         :input => "-15;",
         :operator => "-",
-        :int_val => 15
-      }
+        :value => 15
+      },
+      {
+        :input => "!true;",
+        :operator => "!",
+        :value => true,
+      },
+      {
+        :input => "!false;",
+        :operator => "!",
+        :value => false,
+      },
     ]
 
     prefix_tests.each do |tt|
@@ -197,9 +207,7 @@ class ParserTest < Test::Unit::TestCase
       exp_class = exp.class.name
       assert_equal exp_class, "PrefixExpression", "exp not PrefixExpression, got #{exp_class}"
       assert_equal exp.operator, tt[:operator], "exp.operator is not '#{tt[:operator]}', got #{exp.operator}"
-      if !t_integer_literal(exp.right, tt[:int_val])
-        return
-      end
+      t_literal_expression(exp.right, tt[:value])
     end
   end
 
