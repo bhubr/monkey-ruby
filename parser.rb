@@ -145,9 +145,8 @@ class Parser
   end
 
   def parse_boolean
-    bool = Boolean.new(@cur_token)
-    bool.value = @cur_token.literal.downcase == "true"
-    bool
+    value = @cur_token.literal.downcase == "true"
+    Boolean.new(@cur_token, value)
   end
 
   def parse_prefix_expression

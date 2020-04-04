@@ -99,6 +99,10 @@ class IntegerLiteral < Expression
 end
 
 class Boolean < Expression
+  def initialize(token, value)
+    @token = token
+    @value = value
+  end
 end
 
 class PrefixExpression < Expression
