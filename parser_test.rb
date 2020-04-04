@@ -19,6 +19,12 @@ class ParserTest < Test::Unit::TestCase
     assert_equal il.token_literal, "#{value}", "il.token_literal not '#{value}', got '#{il.token_literal}'"
   end
 
+  def t_boolean_literal(exp, expected_bool)
+    assert_equal exp.class.name, "Boolean", "exp not Boolean. got #{exp.class.name}"
+    assert_equal exp.value, expected_bool, "exp.value not #{expected_bool}, got #{exp.value}"
+    assert_equal exp.token_literal, expected_bool.to_s, "exp.token_literal not #{expected_bool}, got #{exp.token_literal}"
+  end
+
   def t_identifier(exp, expected_val)
     assert_equal exp.class.name, "Identifier"
     assert_equal exp.value, expected_val, "exp.value not '#{expected_val}'. got=#{exp.value}"
@@ -32,6 +38,9 @@ class ParserTest < Test::Unit::TestCase
         return t_integer_literal(exp, expected)
       when "String"
         return t_identifier(exp, expected)
+      when "TrueClass"
+      when "FalseClass"
+        return t_boolean_literal(exp, expected)
       else
         raise "Not handled: #{v}"
     end
@@ -243,6 +252,24 @@ class ParserTest < Test::Unit::TestCase
         :left_value => 5,
         :operator => "!=",
         :right_value => 5
+      },
+      {
+        :input => "true == true",
+        :left_value => true,
+        :operator => "==",
+        :right_value => true
+      },
+      {
+        :input => "true != false",
+        :left_value => true,
+        :operator => "!=",
+        :right_value => false
+      },
+      {
+        :input => "false == false",
+        :left_value => false,
+        :operator => "==",
+        :right_value => false
       },
     ]
     infix_tests.each do |tt|
