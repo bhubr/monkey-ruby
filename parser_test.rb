@@ -5,9 +5,8 @@ require_relative "./parser"
 
 class ParserTest < Test::Unit::TestCase
   def t_let_statement(s, name)
+    assert_equal s.class.name, "LetStatement", "stmt not LetStatement, got #{s.class.name}"
     assert_equal s.token_literal, "let", "s.token_literal not 'let', got #{s.token_literal}"
-    # p s
-    # let_stmt = s.let_statement
     let_stmt_val = s.name.value
     assert_equal let_stmt_val, name, "let_stmt.name.value not '#{name}', got #{let_stmt_val}"
     let_stmt_literal = s.name.token_literal
@@ -130,7 +129,11 @@ class ParserTest < Test::Unit::TestCase
       stmts_len = program.statements.length
       assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
       stmt = program.statements[0]
+      stmt_class = stmt.class.name
+      assert_equal stmt_class, "ExpressionStatement", "stmt not ExpressionStatement, got #{stmt_class}"
       exp = stmt.expression
+      exp_class = exp.class.name
+      assert_equal exp_class, "PrefixExpression", "exp not PrefixExpression, got #{exp_class}"
       assert_equal exp.operator, tt[:operator], "exp.operator is not '#{tt[:operator]}', got #{exp.operator}"
       if !t_integer_literal(exp.right, tt[:int_val])
         return
@@ -198,7 +201,11 @@ class ParserTest < Test::Unit::TestCase
       stmts_len = program.statements.length
       assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
       stmt = program.statements[0]
+      stmt_class = stmt.class.name
+      assert_equal stmt_class, "ExpressionStatement", "stmt not ExpressionStatement, got #{stmt_class}"
       exp = stmt.expression
+      exp_class = exp.class.name
+      assert_equal exp_class, "InfixExpression", "exp not InfixExpression, got #{exp_class}"
       if !t_integer_literal(exp.left, tt[:left_value])
         return
       end
