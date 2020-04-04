@@ -230,16 +230,6 @@ class ParserTest < Test::Unit::TestCase
       assert_equal stmt_class, "ExpressionStatement", "stmt not ExpressionStatement, got #{stmt_class}"
       exp = stmt.expression
       t_infix_expression(exp, tt[:left_value], tt[:operator], tt[:right_value])
-      exp_class = exp.class.name
-      assert_equal exp_class, "InfixExpression", "exp not InfixExpression, got #{exp_class}"
-      if !t_integer_literal(exp.left, tt[:left_value])
-        return
-      end
-      assert_equal exp.operator, tt[:operator], "exp.operator is not '#{tt[:operator]}', got #{exp.operator}"
-      if !t_integer_literal(exp.right, tt[:right_value])
-        return
-      end
-
     end
   end
 
