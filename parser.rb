@@ -32,6 +32,8 @@ class Parser
     register_prefix_fn(Token::INT, method(:parse_integer_literal))
     register_prefix_fn(Token::BANG, method(:parse_prefix_expression))
     register_prefix_fn(Token::MINUS, method(:parse_prefix_expression))
+    register_prefix_fn(Token::TRUE, method(:parse_boolean))
+    register_prefix_fn(Token::FALSE, method(:parse_boolean))
     register_infix_fn(Token::PLUS, method(:parse_infix_expression))
     register_infix_fn(Token::MINUS, method(:parse_infix_expression))
     register_infix_fn(Token::SLASH, method(:parse_infix_expression))
@@ -140,6 +142,12 @@ class Parser
     lit = IntegerLiteral.new(@cur_token)
     lit.value = @cur_token.literal.to_i
     lit
+  end
+
+  def parse_boolean
+    bool = Boolean.new(@cur_token)
+    bool.value = @cur_token.literal.downcase == "true"
+    bool
   end
 
   def parse_prefix_expression

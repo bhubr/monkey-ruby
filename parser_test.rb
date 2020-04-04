@@ -131,6 +131,34 @@ class ParserTest < Test::Unit::TestCase
     assert_equal int.token_literal, "55", "int.token_literal not '55'. got #{int.token_literal}"
   end
 
+  def test_boolean_expression
+    tests = [
+      {
+        :input => "true;",
+        :value => true,
+        :literal => "true",
+      },
+      {
+        :input => "false;",
+        :value => false,
+        :literal => "false"
+      },
+    ]
+    tests.each do |tt|
+      l = Lexer.new(tt[:input])
+      p = Parser.new(l)
+      program = p.parse_program
+      check_parser_errors(p)
+      stmts_len = program.statements.length
+      assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
+      stmt = program.statements[0]
+      bool = stmt.expression
+      assert_equal bool.class.name, "Boolean", "bool is not a Boolean. got #{bool.class.name}"
+      assert_equal bool.value, tt[:value], "bool.value not #{tt[:value]}. got=#{bool.value}"
+      assert_equal bool.token_literal, tt[:literal], "bool.token_literal not '#{tt[:literal]}'. got #{bool.token_literal}"
+    end
+  end
+
   def test_parsing_prefix_expressions
     prefix_tests = [
       {

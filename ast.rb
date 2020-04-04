@@ -96,7 +96,9 @@ class Identifier < Expression
 end
 
 class IntegerLiteral < Expression
+end
 
+class Boolean < Expression
 end
 
 class PrefixExpression < Expression
