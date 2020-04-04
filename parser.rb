@@ -16,14 +16,48 @@ class Parser
     @l = lexer
     @peek_token = nil
     @errors = []
+    @precedences = {
+      Token::EQ => EQUALS,
+      Token::NOT_EQ => EQUALS,
+      Token::LT => LESSGREATER,
+      Token::GT => LESSGREATER,
+      Token::PLUS => SUM,
+      Token::MINUS => SUM,
+      Token::SLASH => PRODUCT,
+      Token::ASTERISK => PRODUCT,
+    }
     @prefix_parse_fns = {}
     @infix_parse_fns = {}
     register_prefix_fn(Token::IDENT, method(:parse_identifier))
     register_prefix_fn(Token::INT, method(:parse_integer_literal))
     register_prefix_fn(Token::BANG, method(:parse_prefix_expression))
     register_prefix_fn(Token::MINUS, method(:parse_prefix_expression))
+    register_infix_fn(Token::PLUS, method(:parse_infix_expression))
+    register_infix_fn(Token::MINUS, method(:parse_infix_expression))
+    register_infix_fn(Token::SLASH, method(:parse_infix_expression))
+    register_infix_fn(Token::ASTERISK, method(:parse_infix_expression))
+    register_infix_fn(Token::EQ, method(:parse_infix_expression))
+    register_infix_fn(Token::NOT_EQ, method(:parse_infix_expression))
+    register_infix_fn(Token::LT, method(:parse_infix_expression))
+    register_infix_fn(Token::GT, method(:parse_infix_expression))
     next_token
     next_token
+  end
+
+  def peek_precedence
+    p = @precedences[@peek_token.type]
+    if p
+      return p
+    end
+    LOWEST
+  end
+
+  def cur_precedence
+    p = @precedences[@cur_token.type]
+    if p
+      return p
+    end
+    LOWEST
   end
 
   def register_prefix_fn(token_type, parse_fn)
@@ -115,13 +149,36 @@ class Parser
     expression
   end
 
+  def parse_infix_expression(left)
+    expression = InfixExpression.new(
+      @cur_token,
+      @cur_token.literal,
+      left
+    )
+    precedence = cur_precedence
+    next_token
+    expression.right = parse_expression(precedence)
+    expression
+  end
+
   def parse_expression(precedence)
     prefix_fn = @prefix_parse_fns[@cur_token.type]
     if prefix_fn == nil
       no_prefix_parse_fn_error(@cur_token.type)
       return nil
     end
-    prefix_fn.call
+    left_exp = prefix_fn.call
+
+    while !peek_token_is(Token::SEMICOLON) && precedence < peek_precedence
+      infix_fn = @infix_parse_fns[@peek_token.type]
+      if infix_fn == nil
+        return left_exp
+      end
+
+      next_token
+      left_exp = infix_fn.call(left_exp)
+    end
+    left_exp
   end
 
   def parse_expression_statement

@@ -137,4 +137,76 @@ class ParserTest < Test::Unit::TestCase
       end
     end
   end
+
+  def test_parsing_infix_expressions
+    infix_tests = [
+      {
+        :input => "5 + 5;",
+        :left_value => 5,
+        :operator => "+",
+        :right_value => 5
+      },
+      {
+        :input => "5 - 5;",
+        :left_value => 5,
+        :operator => "-",
+        :right_value => 5
+      },
+      {
+        :input => "5 * 5;",
+        :left_value => 5,
+        :operator => "*",
+        :right_value => 5
+      },
+      {
+        :input => "5 / 5;",
+        :left_value => 5,
+        :operator => "/",
+        :right_value => 5
+      },
+      {
+        :input => "5 > 5;",
+        :left_value => 5,
+        :operator => ">",
+        :right_value => 5
+      },
+      {
+        :input => "5 < 5;",
+        :left_value => 5,
+        :operator => "<",
+        :right_value => 5
+      },
+      {
+        :input => "5 == 5;",
+        :left_value => 5,
+        :operator => "==",
+        :right_value => 5
+      },
+      {
+        :input => "5 != 5;",
+        :left_value => 5,
+        :operator => "!=",
+        :right_value => 5
+      },
+    ]
+    infix_tests.each do |tt|
+      l = Lexer.new(tt[:input])
+      p = Parser.new(l)
+      program = p.parse_program
+      check_parser_errors(p)
+
+      stmts_len = program.statements.length
+      assert_equal stmts_len, 1, "program has not enough statements. got=#{stmts_len}"
+      stmt = program.statements[0]
+      exp = stmt.expression
+      if !t_integer_literal(exp.left, tt[:left_value])
+        return
+      end
+      assert_equal exp.operator, tt[:operator], "exp.operator is not '#{tt[:operator]}', got #{exp.operator}"
+      if !t_integer_literal(exp.right, tt[:right_value])
+        return
+      end
+
+    end
+  end
 end

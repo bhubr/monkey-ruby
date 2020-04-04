@@ -106,6 +106,19 @@ class PrefixExpression < Expression
     @operator = operator
   end
   def string
-    "(#{@operator}#{right.string})"
+    "(#{@operator}#{@right.string})"
   end
 end
+
+class InfixExpression < Expression
+  attr_accessor :operator, :left, :right
+  def initialize(token, operator, left)
+    @token = token
+    @operator = operator
+    @left = left
+  end
+  def string
+    "(#{@left.string} #{@operator} #{@right.string})"
+  end
+end
+
