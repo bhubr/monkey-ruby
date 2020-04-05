@@ -133,6 +133,7 @@ class InfixExpression < Expression
 end
 
 class IfExpression < Expression
+  attr_accessor :condition, :consequence, :alternative
   def string
     out = "if#{@condition.string} #{@consequence.string}"
     if @alternative != nil
@@ -143,6 +144,12 @@ class IfExpression < Expression
 end
 
 class BlockStatement < Statement
+  attr_accessor :statements
+  def initialize(token)
+    @token = token
+    @statements = []
+  end
+
   def string
     out = ""
     @statements.each do |stmt|

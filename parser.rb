@@ -35,6 +35,7 @@ class Parser
     register_prefix_fn(Token::TRUE, method(:parse_boolean))
     register_prefix_fn(Token::FALSE, method(:parse_boolean))
     register_prefix_fn(Token::LPAREN, method(:parse_grouped_expression))
+    register_prefix_fn(Token::IF, method(:parse_if_expression))
     register_infix_fn(Token::PLUS, method(:parse_infix_expression))
     register_infix_fn(Token::MINUS, method(:parse_infix_expression))
     register_infix_fn(Token::SLASH, method(:parse_infix_expression))
@@ -148,6 +149,48 @@ class Parser
   def parse_boolean
     value = @cur_token.literal.downcase == "true"
     Boolean.new(@cur_token, value)
+  end
+
+  def parse_block_statement
+    block = BlockStatement.new(@cur_token)
+    next_token
+
+    while !cur_token_is(Token::RBRACE) && !cur_token_is(Token::EOF)
+      stmt = parse_statement
+      if stmt != nil
+        block.statements.push(stmt)
+      end
+      next_token
+    end
+
+    block
+  end
+
+  def parse_if_expression
+    expression = IfExpression.new(@cur_token)
+    if !expect_peek(Token::LPAREN)
+      return nil
+    end
+
+    next_token
+    expression.condition = parse_expression(LOWEST)
+    if !expect_peek(Token::RPAREN)
+      return nil
+    end
+    if !expect_peek(Token::LBRACE)
+      return nil
+    end
+
+    expression.consequence = parse_block_statement
+
+    if peek_token_is(Token::ELSE)
+      next_token
+      if !expect_peek(Token::LBRACE)
+        return nil
+      end
+      expression.alternative = parse_block_statement
+    end
+    expression
   end
 
   def parse_grouped_expression

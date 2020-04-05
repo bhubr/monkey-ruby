@@ -394,8 +394,7 @@ class ParserTest < Test::Unit::TestCase
     end
   end
 
-  def test_if_expression
-    input = "if (x < y) { x }"
+  def t_if_else_expression(input, alt_literal)
     l = Lexer.new(input)
     p = Parser.new(l)
     program = p.parse_program
@@ -412,7 +411,24 @@ class ParserTest < Test::Unit::TestCase
     assert_equal c_num_stmts, 1, "consequence has not 1 statement, got #{c_num_stmts}"
     c_first_st = exp.consequence.statements[0]
     assert_equal c_first_st.class.name, "ExpressionStatement", "consequence.stmts[0] not ExpressionStatement, got #{c_first_st.class.name}"
-    t_identifier(exp.consequence.expression, "x")
-    assert_equal exp.alternative, nil, "exp.alternative not nil, got #{exp.alternative}"
+    t_identifier(c_first_st.expression, "x")
+    if alt_literal == nil
+      assert_equal exp.alternative, nil, "exp.alternative not nil, got #{exp.alternative}"
+    else
+      assert_not_equal exp.alternative, nil, "exp.alternative unexpectedly is nil"
+      a_num_stmts = exp.alternative.statements.length
+      assert_equal a_num_stmts,  1, "alternative has not 1 statement, got #{a_num_stmts}"
+      a_first_st = exp.alternative.statements[0]
+      assert_equal a_first_st.class.name, "ExpressionStatement", "alternative.stmts[0] not ExpressionStatement, got #{a_first_st.class.name}"
+      t_identifier(a_first_st.expression, alt_literal)
+    end
+  end
+
+  def test_if_expression
+    t_if_else_expression("if (x < y) { x }", nil)
+  end
+
+  def test_if_else_expression
+    t_if_else_expression("if (x < y) { x } else { y }", "y")
   end
 end
