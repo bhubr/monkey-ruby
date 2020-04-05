@@ -159,3 +159,13 @@ class BlockStatement < Statement
   end
 end
 
+class FunctionLiteral < Expression
+  attr_accessor :body, :parameters
+  def string
+    params = @parameters.map { |p| p.string }
+    out = "#{token_literal}(#{params.join(", ")})"
+    out += @body.string
+    out
+  end
+end
+    

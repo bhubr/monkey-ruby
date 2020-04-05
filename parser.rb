@@ -36,6 +36,7 @@ class Parser
     register_prefix_fn(Token::FALSE, method(:parse_boolean))
     register_prefix_fn(Token::LPAREN, method(:parse_grouped_expression))
     register_prefix_fn(Token::IF, method(:parse_if_expression))
+    register_prefix_fn(Token::FUNCTION, method(:parse_function_literal))
     register_infix_fn(Token::PLUS, method(:parse_infix_expression))
     register_infix_fn(Token::MINUS, method(:parse_infix_expression))
     register_infix_fn(Token::SLASH, method(:parse_infix_expression))
@@ -191,6 +192,49 @@ class Parser
       expression.alternative = parse_block_statement
     end
     expression
+  end
+
+  def parse_function_parameters
+    identifiers = []
+
+    if peek_token_is(Token::RPAREN)
+      next_token
+      return identifiers
+    end
+
+    next_token
+
+    ident = parse_identifier
+    identifiers.push(ident)
+
+    while peek_token_is(Token::COMMA)
+      next_token
+      next_token
+      ident = parse_identifier
+      identifiers.push(ident)
+    end
+
+    if !expect_peek(Token::RPAREN)
+      return nil
+    end
+ 
+    identifiers
+  end
+
+  def parse_function_literal
+    lit = FunctionLiteral.new(@cur_token)
+    if !expect_peek(Token::LPAREN)
+      return nil
+    end
+
+    lit.parameters = parse_function_parameters
+
+    if !expect_peek(Token::LBRACE)
+      return nil
+    end
+
+    lit.body = parse_block_statement
+    lit
   end
 
   def parse_grouped_expression

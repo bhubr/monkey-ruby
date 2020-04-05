@@ -431,4 +431,26 @@ class ParserTest < Test::Unit::TestCase
   def test_if_else_expression
     t_if_else_expression("if (x < y) { x } else { y }", "y")
   end
+
+  def test_function_literal_parsing
+    input = "fn(x, y) { x + y; }"
+    l = Lexer.new(input)
+    p = Parser.new(l)
+    program = p.parse_program
+    check_parser_errors(p)
+
+    p_num_stmts = program.statements.length
+    assert_equal p_num_stmts, 1, "program.statements does not contain 1 statement, got #{p_num_stmts}"
+    first_st = program.statements[0]
+    assert_equal first_st.class.name, "ExpressionStatement", "program.statements[0] not ExpressionStatement, got #{first_st.class.name}"
+    fn = first_st.expression
+    assert_equal fn.class.name, "FunctionLiteral", "stmt.expression not FunctionLiteral, got "#{fn.class.name}"
+    assert_equal fn.parameters.length, 2
+    t_literal_expression(fn.parameters[0], "x")
+    t_literal_expression(fn.parameters[1], "y")
+    assert_equal fn.body.statements.length, 1
+    fnb_first_st = fn.body.statements[0]
+    assert_equal fnb_first_st.class.name, "ExpressionStatement"
+    t_infix_expression(fnb_first_st.expression, "x", "+", "y")
+  end
 end
