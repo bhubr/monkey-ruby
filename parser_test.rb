@@ -394,4 +394,25 @@ class ParserTest < Test::Unit::TestCase
     end
   end
 
+  def test_if_expression
+    input = "if (x < y) { x }"
+    l = Lexer.new(input)
+    p = Parser.new(l)
+    program = p.parse_program
+    check_parser_errors(p)
+
+    p_num_stmts = program.statements.length
+    assert_equal p_num_stmts, 1, "program.statements does not contain 1 statement, got #{p_num_stmts}"
+    first_st = program.statements[0]
+    assert_equal first_st.class.name, "ExpressionStatement", "program.statements[0] not ExpressionStatement, got #{first_st.class.name}"
+    exp = first_st.expression
+    assert_equal exp.class.name, "IfExpression", "stmt.expression not IfExpression, got "#{exp.class.name}"
+    t_infix_expression(exp.condition, "x", "<", "y")
+    c_num_stmts = exp.consequence.statements.length
+    assert_equal c_num_stmts, 1, "consequence has not 1 statement, got #{c_num_stmts}"
+    c_first_st = exp.consequence.statements[0]
+    assert_equal c_first_st.class.name, "ExpressionStatement", "consequence.stmts[0] not ExpressionStatement, got #{c_first_st.class.name}"
+    t_identifier(exp.consequence.expression, "x")
+    assert_equal exp.alternative, nil, "exp.alternative not nil, got #{exp.alternative}"
+  end
 end

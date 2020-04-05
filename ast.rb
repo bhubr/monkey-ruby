@@ -132,3 +132,23 @@ class InfixExpression < Expression
   end
 end
 
+class IfExpression < Expression
+  def string
+    out = "if#{@condition.string} #{@consequence.string}"
+    if @alternative != nil
+      out += "else #{@alternative.string}"
+    end
+    out
+  end
+end
+
+class BlockStatement < Statement
+  def string
+    out = ""
+    @statements.each do |stmt|
+      out += stmt.string
+    end
+    out
+  end
+end
+
