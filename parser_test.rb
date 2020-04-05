@@ -4,6 +4,14 @@ require_relative "./lexer"
 require_relative "./parser"
 
 class ParserTest < Test::Unit::TestCase
+  def t_parse_and_check(input)
+    l = Lexer.new(input)
+    p = Parser.new(l)
+    program = p.parse_program
+    check_parser_errors(p)
+    program
+  end
+
   def t_let_statement(s, name)
     assert_equal s.class.name, "LetStatement", "stmt not LetStatement, got #{s.class.name}"
     assert_equal s.token_literal, "let", "s.token_literal not 'let', got #{s.token_literal}"
@@ -452,5 +460,33 @@ class ParserTest < Test::Unit::TestCase
     fnb_first_st = fn.body.statements[0]
     assert_equal fnb_first_st.class.name, "ExpressionStatement"
     t_infix_expression(fnb_first_st.expression, "x", "+", "y")
+  end
+
+  def test_function_parameter_parsing
+    tests = [
+      {
+        :input => "fn() {};",
+        :expected_params => [],
+      },
+      {
+        :input => "fn(x) {};",
+        :expected_params => ["x"],
+      },
+      {
+        :input => "fn(x, y, z) {};",
+        :expected_params => ["x", "y", "z"],
+      },
+    ]
+
+    tests.each do |tt|
+      program = t_parse_and_check(tt[:input])
+      stmt = program.statements[0]
+      function = stmt.expression
+
+      assert_equal function.parameters.length, tt[:expected_params].length
+      tt[:expected_params].each_with_index do |ident, i|
+        t_literal_expression(function.parameters[i], ident)
+      end
+    end
   end
 end
