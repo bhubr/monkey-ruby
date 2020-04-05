@@ -34,6 +34,7 @@ class Parser
     register_prefix_fn(Token::MINUS, method(:parse_prefix_expression))
     register_prefix_fn(Token::TRUE, method(:parse_boolean))
     register_prefix_fn(Token::FALSE, method(:parse_boolean))
+    register_prefix_fn(Token::LPAREN, method(:parse_grouped_expression))
     register_infix_fn(Token::PLUS, method(:parse_infix_expression))
     register_infix_fn(Token::MINUS, method(:parse_infix_expression))
     register_infix_fn(Token::SLASH, method(:parse_infix_expression))
@@ -147,6 +148,16 @@ class Parser
   def parse_boolean
     value = @cur_token.literal.downcase == "true"
     Boolean.new(@cur_token, value)
+  end
+
+  def parse_grouped_expression
+    next_token
+    exp = parse_expression(LOWEST)
+    if !expect_peek(Token::RPAREN)
+      return nil
+    end
+
+    exp
   end
 
   def parse_prefix_expression
